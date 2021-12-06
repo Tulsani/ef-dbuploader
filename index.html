@@ -101,7 +101,9 @@ for(i=0;i<=inp.files.length-1;i++){
      //let r = await fetch('/upload/image', {method: "POST", body: formData});
      //console.log('HTTP response code:',r.status);
 
-  const url = 'https://0r1d6p0ii6.execute-api.ap-south-1.amazonaws.com/default/EF-dataCollection';// change this
+  var url = new URL('https://0r1d6p0ii6.execute-api.ap-south-1.amazonaws.com/default/EF-dataCollection');// change this
+  var params = {'fileType':'png','productType':'living-room','productId':'generated_123_id','productImageName':'generated_123_id_1'};
+  url.search = new URLSearchParams(params).toString();
   fetch(url,{
   method:'GET',
   mode:'cors'})
