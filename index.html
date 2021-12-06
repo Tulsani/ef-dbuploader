@@ -134,7 +134,8 @@ async function SavePhoto(inp)
 for(i=0;i<=inp.files.length-1;i++){
   console.log("getting input files",inp.files[i]);
   let photo = inp.files[i];
-  let extension = inp.files[i].type;
+  let extension = inp.files[i].split("/");
+  let type = extension[extension.length-1];
 
   formData.append("photo", photo);
   formData.append("user", JSON.stringify(user));
@@ -143,7 +144,7 @@ for(i=0;i<=inp.files.length-1;i++){
      //let r = await fetch('/upload/image', {method: "POST", body: formData});
      //console.log('HTTP response code:',r.status);
   var url = new URL('https://0r1d6p0ii6.execute-api.ap-south-1.amazonaws.com/default/EF-dataCollection');// change this
-  var params = {'fileType':extension,'productType':productItem["productType"],'productId':productItem["productID"],'productImageName':`${productItem["productID"]}_${i}`};
+  var params = {'fileType':type,'productType':productItem["productType"],'productId':productItem["productID"],'productImageName':`${productItem["productID"]}_${i}`};
   url.search = new URLSearchParams(params).toString();
   fetch(url,{
   method:'GET',
@@ -168,7 +169,7 @@ for(i=0;i<=inp.files.length-1;i++){
     {
     method:'PUT',
     headers:
-    { 'Content-Type': `image/${extension}`, 'x-amz-acl': 'public-read' },
+    { 'Content-Type': `image/${type}`, 'x-amz-acl': 'public-read' },
     mode: 'cors',
     body: photo
     })
