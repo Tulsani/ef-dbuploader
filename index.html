@@ -134,7 +134,7 @@ async function SavePhoto(inp)
 for(i=0;i<=inp.files.length-1;i++){
   console.log("getting input files",inp.files[i]);
   let photo = inp.files[i];
-  let extension = inp.files[i].split("/");
+  let extension = inp.files[i].type.split("/");
   let type = extension[extension.length-1];
 
   formData.append("photo", photo);
