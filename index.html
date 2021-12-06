@@ -122,6 +122,7 @@
 let productItem ={};
 async function SavePhoto(inp)
 {
+  if(productItem["productType"] && productItem["productID"]){
   // Generate productId
   // Get the form data
   // push data to dynamoDB
@@ -133,6 +134,7 @@ async function SavePhoto(inp)
 for(i=0;i<=inp.files.length-1;i++){
   console.log("getting input files",inp.files[i]);
   let photo = inp.files[i];
+  let extension = inp.files[i].type;
 
   formData.append("photo", photo);
   formData.append("user", JSON.stringify(user));
@@ -140,9 +142,8 @@ for(i=0;i<=inp.files.length-1;i++){
   try {
      //let r = await fetch('/upload/image', {method: "POST", body: formData});
      //console.log('HTTP response code:',r.status);
-
   var url = new URL('https://0r1d6p0ii6.execute-api.ap-south-1.amazonaws.com/default/EF-dataCollection');// change this
-  var params = {'fileType':'png','productType':'living-room','productId':'generated_123_id','productImageName':'generated_123_id_1'};
+  var params = {'fileType':extension,'productType':productItem["productType"],'productId':productItem["productID"],'productImageName':`${productItem["productID"]}_${i}`};
   url.search = new URLSearchParams(params).toString();
   fetch(url,{
   method:'GET',
@@ -167,7 +168,7 @@ for(i=0;i<=inp.files.length-1;i++){
     {
     method:'PUT',
     headers:
-    { 'Content-Type': 'image/png', 'x-amz-acl': 'public-read' },
+    { 'Content-Type': `image/${extension}`, 'x-amz-acl': 'public-read' },
     mode: 'cors',
     body: photo
     })
@@ -190,7 +191,10 @@ for(i=0;i<=inp.files.length-1;i++){
   // end of uploader for loop
 }
 
-
+}
+else{
+  alert("product items seems to be empty please fill again and submit");
+}
 }
 
 // Checking values dynamically
