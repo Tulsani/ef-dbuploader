@@ -17,9 +17,12 @@
   <!-- slider stylesheet -->
   <link rel="stylesheet" type="text/css"
     href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.1.3/assets/owl.carousel.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
   <!-- bootstrap core css -->
-  <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 
   <!-- fonts style -->
   <link href="https://fonts.googleapis.com/css?family=Baloo+Chettan|Dosis:400,600,700|Poppins:400,600,700&display=swap"
@@ -35,28 +38,61 @@
     <!-- header section strats -->
 
     <!-- end header section -->
-    <!-- slider section -->
+    <div class="heading_container text-center">
+      <h2>
+         Add Product Details
+      </h2>
+    </div>
+    <div class="text-center">
 
+  <button class="add btn btn-success">Add Field</button>
+  <button class="remove btn btn-danger">remove</button>
+  <div id="new_chq"></div>
+  <input type="hidden" value="1" id="total_chq">
+  <br>
+    <input type="submit" class="btn btn-primary" value="Submit" onClick="checkVal(); return false;" />
+    </div>
+      <!-- slider section -->
+      <form class="form-group text-center">
+        <br><br>
+         <section class="about_section layout_padding">
+           <div class="container-fluid text-center">
+             <div class="heading_container">
+               <h2>
+                  Upload Product Images
+               </h2>
+             </div>
+       <!-- setting up uploader -->
+       <input id="image-file" type="file" onchange="SavePhoto(this)"  multiple>
+       <br>
+       <div id="upload_processing">
+         Uploading please wait
+       <div class="loader"></div>
+       </div>
+       <br>
+
+    </form>
     <!-- end slider section -->
   </div>
 
-
   <!-- about section -->
+  <!-- Addind dynamic inputs -->
 
-  <section class="about_section layout_padding">
-    <div class="container">
+ <br><br>
+  <!-- <section class="about_section layout_padding">
+    <div class="container-fluid text-center">
       <div class="heading_container">
         <h2>
            Upload Product Images
         </h2>
-      </div>
+      </div> -->
 <!-- setting up uploader -->
-<input id="image-file" type="file" onchange="SavePhoto(this)"  multiple>
+<!-- <input id="image-file" type="file" onchange="SavePhoto(this)"  multiple>
 <br>
 <div id="upload_processing">
   Uploading please wait
 <div class="loader"></div>
-</div>
+</div> -->
 <style>
 #upload_processing{
   display: none;
@@ -83,9 +119,13 @@
 <!-- (in stack overflow snippets there is problem with error handling, however in <a href="https://jsfiddle.net/Lamik/b8ed5x3y/5/">jsfiddle version</a> for 404 errors 4xx/5xx are <a href="https://stackoverflow.com/a/33355142/860099">not throwing</a> at all but we can read response status which contains code) -->
 
 <script>
-
+let productItem ={};
 async function SavePhoto(inp)
 {
+  // Generate productId
+  // Get the form data
+  // push data to dynamoDB
+  // then uppload photos
 
   let user = { name:'john', age:34 };
   let formData = new FormData();
@@ -152,6 +192,83 @@ for(i=0;i<=inp.files.length-1;i++){
 
 
 }
+
+// Checking values dynamically
+function checkVal() {
+
+  var new_chq_no = parseInt($('#total_chq').val());
+    for (var i = 0; i <= new_chq_no; i++) {
+        var inputElement = document.getElementById(`new_${i}`);
+        var inputvalElement = document.getElementById(`val_new_${i}`);
+        if(inputElement && inputvalElement){
+        console.log(inputElement.value,inputvalElement.value);
+        if(inputElement.value != '')
+        productItem[inputElement.value.toLowerCase()] =inputvalElement.value;
+      }
+    }
+    console.log(productItem,typeof productItem);
+   // productItem sett
+   if(productItem["producttype"]){
+   productItem["productType"]=productItem["producttype"];
+   delete productItem["producttype"];
+   var milliseconds = new Date().getTime();
+   productItem["productID"]= productItem["productType"]+"_"+milliseconds;
+   productItem["productMediaLink"] = `https://ef-products.s3.ap-south-1.amazonaws.com/${productItem["productType"]}/${productItem["productID"]}/`;
+
+   console.log(productItem);
+   // post data to dynamodb
+   fetch("https://hlykgc43qf.execute-api.ap-south-1.amazonaws.com/default/EF-productDataToDB" ,
+   {
+   method:'POST',
+   headers:
+   {   'Accept': 'application/json',
+      'Content-Type': 'application/json'},
+   mode: 'cors',
+   body: JSON.stringify({"productItem":productItem})
+   })
+   .then((res) =>{ console.log(res);
+     alert("product added successesfully");
+     // location.reload(true);
+     // document.getElementById("upload_processing").style.display = "none";
+   })
+   .catch((err) => console.log(err))
+
+ }
+   else {
+     alert("product type is not defined please add product type ");
+   }
+}
+// Insert new Form field logic
+
+$('#add-field').on('click',()=>{
+  inputs_available++;
+  var htmlToAdd = `  <input type="text" name="qty${inputs_available}" value="input${inputs_available}" /> &nbsp; : &nbsp; <input type="text" name="val_qty${inputs_available}" value="val_input${inputs_available}" /> <br>`;
+  $('#input_group').append(htmlToAdd);
+});
+
+$('.add').on('click', add);
+$('.remove').on('click', remove);
+
+function add() {
+var new_chq_no = parseInt($('#total_chq').val()) + 1;
+var new_input = "<input type='text' id='new_" + new_chq_no + "'> : <input type='text' id='val_new_" + new_chq_no + "'> <br>";
+
+$('#new_chq').append(new_input);
+
+$('#total_chq').val(new_chq_no);
+}
+
+function remove() {
+var last_chq_no = $('#total_chq').val();
+
+if (last_chq_no > 1) {
+$('#new_' + last_chq_no).remove();
+$('#val_new_' + last_chq_no).remove();
+$('#total_chq').val(last_chq_no - 1);
+}
+}
+
+
 </script>
 <!-- end of uploader -->
       </div>
