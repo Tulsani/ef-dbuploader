@@ -51,7 +51,7 @@
         </h2>
       </div>
 <!-- setting up uploader -->
-<input id="image-file" type="file" onchange="SavePhoto(this)" >
+<input id="image-file" type="file" onchange="SavePhoto(this)"  multiple>
 <br>
 <div id="upload_processing">
   Uploading please wait
@@ -89,7 +89,10 @@ async function SavePhoto(inp)
 
   let user = { name:'john', age:34 };
   let formData = new FormData();
-  let photo = inp.files[0];
+// add loop to push multiple files
+for(i=0;i<=inp.files.length-1;i++){
+  console.log("getting input files",inp.files[i]);
+  let photo = inp.files[i];
 
   formData.append("photo", photo);
   formData.append("user", JSON.stringify(user));
@@ -127,7 +130,7 @@ async function SavePhoto(inp)
     body: photo
     })
     .then((res) =>{ console.log(res);
-      alert("ROC was uploaded successesfully");
+      alert("product images were uploaded successesfully");
       location.reload(true);
       document.getElementById("upload_processing").style.display = "none";
     })
@@ -141,6 +144,10 @@ async function SavePhoto(inp)
   } catch(e) {
      console.log('Huston we have problem...:', e);
   }
+
+  // end of uploader for loop
+}
+
 
 }
 </script>
